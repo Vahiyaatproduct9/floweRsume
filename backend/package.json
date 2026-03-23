@@ -17,9 +17,13 @@
     "@google/genai": "^1.46.0",
     "@react-pdf/renderer": "^4.3.2",
     "@types/pdfkit": "^0.17.5",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.2.14",
     "elysia": "^1.4.28",
+    "jose": "^6.2.2",
     "pdfjs-dist": "^5.5.207",
-    "pdfkit": "^0.18.0"
+    "pdfkit": "^0.18.0",
+    "pg": "^8.20.0",
+    "svix": "^1.89.0"
   }
 }

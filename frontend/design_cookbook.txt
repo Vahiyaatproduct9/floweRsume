@@ -1,0 +1,64 @@
+create a professional landing page by editing @frontend/app/page.tsx and adding component wherever necessary.
+the page should contain a catchy
+header section with a hero with subtle  
+animations.  
+the next part should be the pricing.  
+the pricing will be based on credits  
+system. show 3 offers
+1. free (1 resume generation)
+2. 20 credits for 99/-: 4 resume generation
+3. 100 credits for 400/-: (pitch users that they get extra 20 for 400) 20 resume generations.
+then the last part should be a CTA section
+asking the users email and what they have to say.
+
+*Note
+make the theme dynamic by tracking the client device's preferred theme
+create a separate file called color.ts or similar to keep the theme colors and use them accordingly in the format
+dark: {
+    primary: ...
+    secondary: ...
+    text: ...
+    tint: ...
+    .. whatever else field is necessary
+  }
+... same for light theme
+
+the name is 'floweRsume' so the theme should be around subtle pink.
+add whatever extra details or feature that you think should be needed.
+
+
+table generation
+enum transactionstatus ( pending | paid | failed )
+
+-- synced from Clerk webhook
+users (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_id      TEXT UNIQUE NOT NULL,
+  email         TEXT NOT NULL,
+  credits       INT DEFAULT 3,         -- free tier starts here
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+)
+
+-- every generation saved automatically
+resumes (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id             UUID REFERENCES users(id),
+  job_description     TEXT NOT NULL,
+  original_text       TEXT,     -- raw parsed text from their uploaded PDF
+  generated_json      JSONB NOT NULL,    -- structured resume sections from AI
+  ats_score_before    INT,               -- optional but impressive
+  ats_score_after     INT,
+  created_at          TIMESTAMPTZ DEFAULT NOW()
+)
+
+transactions (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id               UUID REFERENCES users(id),
+  razorpay_order_id     TEXT UNIQUE NOT NULL,
+  razorpay_payment_id   TEXT,
+  credits_purchased     INT NOT NULL,    -- 20
+  amount_paise          INT NOT NULL,    -- 9900
+  status                transactionstatus DEFAULT 'pending',  -- 
+  created_at            TIMESTAMPTZ DEFAULT NOW()
+)
+```
