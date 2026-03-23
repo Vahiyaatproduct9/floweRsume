@@ -9,8 +9,10 @@ import {
   Plus,
   ChevronRight,
   ExternalLink,
+  Inbox,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { EmptyState } from "./EmptyState";
 
 interface HistoryItemProps {
   item: any;
@@ -48,6 +50,8 @@ interface HistorySectionProps {
 }
 
 export const HistorySection: React.FC<HistorySectionProps> = ({ data }) => {
+  const hasItems = data?.items && data.items.length > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 30 }}
@@ -59,26 +63,36 @@ export const HistorySection: React.FC<HistorySectionProps> = ({ data }) => {
         <div className="flex items-center gap-2">
           <HistoryIcon size={14} className="text-muted" />
           <h3 className="text-[10px] font-black tracking-[0.2em] text-muted uppercase">
-            {data.title}
+            {data?.title || "RECENT EDITS"}
           </h3>
         </div>
-        <button className="text-[10px] font-black tracking-[0.2em] text-primary hover:opacity-70 flex items-center gap-1 uppercase transition-opacity">
-          {data.viewAll} <ChevronRight size={10} />
-        </button>
+        {hasItems && (
+          <button className="text-[10px] font-black tracking-[0.2em] text-primary hover:opacity-70 flex items-center gap-1 uppercase transition-opacity">
+            {data?.viewAll || "VIEW ALL"} <ChevronRight size={10} />
+          </button>
+        )}
       </div>
 
       <div className="space-y-3">
-        {data.items.map((item: any, index: number) => (
-          <HistoryItem key={item.id} item={item} index={index} />
-        ))}
+        {hasItems ? (
+          data.items.map((item: any, index: number) => (
+            <HistoryItem key={item.id} item={item} index={index} />
+          ))
+        ) : (
+          <EmptyState
+            icon={Inbox}
+            title="Clean Slate"
+            description="Your recent edits will appear here as you craft your masterpieces."
+          />
+        )}
       </div>
 
-      <button className="w-full flex flex-col items-center justify-center gap-3 py-10 bg-background border-2 border-dashed border-border/40 rounded-[2rem] text-muted/60 hover:border-primary/40 hover:text-primary hover:bg-accent/5 transition-all group active:scale-[0.98]">
+      <button className="w-full flex flex-col items-center justify-center gap-3 py-10 bg-background border-2 border-dashed border-border/40 rounded-4xl text-muted/60 hover:border-primary/40 hover:text-primary hover:bg-accent/5 transition-all group active:scale-[0.98]">
         <div className="w-12 h-12 bg-muted/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
           <Plus size={24} />
         </div>
         <span className="text-[10px] font-black tracking-[0.2em] uppercase">
-          {data.newCanvas}
+          {data?.newCanvas || "START A NEW CANVAS"}
         </span>
       </button>
 

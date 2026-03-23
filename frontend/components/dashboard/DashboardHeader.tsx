@@ -11,7 +11,7 @@ interface HeaderProps {
 export const DashboardHeader: React.FC<HeaderProps> = ({ data }) => {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 bg-background border-b border-border lg:border-none lg:bg-transparent">
-      <h2 className="text-xl font-bold text-primary">{data.title}</h2>
+      {/* <h2 className="text-xl font-bold text-primary">{data?.title || "Curated Canvas"}</h2> */}
 
       <div className="flex items-center gap-4">
         <button className="hidden sm:block text-muted hover:text-foreground">

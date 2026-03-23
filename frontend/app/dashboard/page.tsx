@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { EditorSection } from "@/components/dashboard/EditorSection";
 import { HistorySection } from "@/components/dashboard/HistorySection";
 import { AITipCard } from "@/components/dashboard/AITipCard";
+import { ResumeUploadSection } from "@/components/dashboard/ResumeUploadSection";
+import { analyzeResume } from "@/app/functions/analysis";
 
 // Mock data that would normally come from a server
 const dashboardData = {
@@ -18,13 +19,12 @@ const dashboardData = {
     menu: [
       { id: "editor", label: "Editor", icon: "Edit3" },
       { id: "templates", label: "Templates", icon: "Layout" },
-      { id: "optimizer", label: "AI Optimizer", icon: "Sparkles" },
-      { id: "history", label: "History", icon: "History" },
-    ],
-    footer: [
+      // { id: "optimizer", label: "AI Optimizer", icon: "Sparkles" },
       { id: "settings", label: "Settings", icon: "Settings" },
       { id: "support", label: "Support", icon: "HelpCircle" },
     ],
+    // footer: [
+    // ],
   },
   editor: {
     title: "Refine Your Story",
@@ -55,6 +55,20 @@ const dashboardData = {
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("editor");
+  const [resumeContent, setResumeContent] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+
+  const handleAnalyze = async () => {
+    console.log("Analyzing with:", { 
+      resumeContent, 
+      jobDescription, 
+      resumeFileName: resumeFile?.name 
+    });
+
+    const result = await analyzeResume(resumeFile, resumeContent, jobDescription);
+    console.log("Analysis Result:", result);
+  };
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -74,7 +88,23 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left Content: Editor (8 cols on desktop) */}
             <div className="lg:col-span-8 flex flex-col gap-10">
-              <EditorSection data={dashboardData.editor} />
+              <ResumeUploadSection
+                resumeFile={resumeFile}
+                resumeContent={resumeContent}
+                setResumeFile={setResumeFile}
+                setResumeContent={setResumeContent}
+              />
+
+              <EditorSection
+                data={dashboardData.editor}
+                resumeContent={resumeContent}
+                setResumeContent={setResumeContent}
+                jobDescription={jobDescription}
+                setJobDescription={setJobDescription}
+                onAnalyze={handleAnalyze}
+                resumeFile={resumeFile}
+                setResumeFile={setResumeFile}
+              />
 
               {/* AI Tip - Visible on Desktop under Editor, or at bottom on Mobile */}
               <div className="hidden lg:block">

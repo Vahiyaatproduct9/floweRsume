@@ -1,11 +1,13 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { PORT } from "./env";
-import { generateResumePDF } from "./src/templates/resume2.template";
+import { generateResumePDF } from "./src/templates/resume-1.template";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { generate } from "./src/AI/initialize";
 import { DatabaseError } from "pg";
 import { clerkWebhook } from "@/webhook/clerk";
+import { userController } from "@/user/user.controller";
+import { analysisController } from "@/analysis/analysis.controller";
 
 const app = new Elysia()
   .onRequest((ctx) => {
@@ -59,6 +61,8 @@ const app = new Elysia()
     }),
   )
   .use(clerkWebhook)
+  .use(userController)
+  .use(analysisController)
   .get("/", async (ctx) => {
     const document = await generateResumePDF();
     Bun.write("path.pdf", document);
