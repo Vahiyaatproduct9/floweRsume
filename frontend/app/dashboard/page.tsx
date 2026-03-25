@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { EditorSection } from "@/components/dashboard/EditorSection";
 import { HistorySection } from "@/components/dashboard/HistorySection";
 import { AITipCard } from "@/components/dashboard/AITipCard";
 import { ResumeUploadSection } from "@/components/dashboard/ResumeUploadSection";
 import { analyzeResume } from "@/app/functions/analysis";
+import { ResumePopup } from "@/components/dashboard/ResumePopup";
+import { useMessageStore } from "@/store/useMessageStore";
 
 // Mock data that would normally come from a server
 const dashboardData = {
@@ -59,15 +61,55 @@ export default function DashboardPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
+  // Popup state
+  const [showPopup, setShowPopup] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const { setMessage, setType } = useMessageStore();
+
+  // Cleanup blob URL to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
+
   const handleAnalyze = async () => {
-    console.log("Analyzing with:", { 
-      resumeContent, 
-      jobDescription, 
-      resumeFileName: resumeFile?.name 
+    console.log("Analyzing with:", {
+      resumeContent,
+      jobDescription,
+      resumeFileName: resumeFile?.name,
     });
 
-    const result = await analyzeResume(resumeFile, resumeContent, jobDescription);
-    console.log("Analysis Result:", result);
+    try {
+      const result = await analyzeResume(
+        resumeFile,
+        resumeContent,
+        jobDescription,
+      );
+
+      if (result instanceof Blob) {
+        // Handle successful PDF blob
+        const url = URL.createObjectURL(result);
+        setPdfUrl(url);
+        setShowPopup(true);
+      } else if (result && result.success === false) {
+        // Handle expected API error
+        setMessage(
+          result.message || "Failed to analyze resume. Please try again.",
+        );
+        setType("error");
+      } else {
+        // Unexpected result format
+        setMessage("An unexpected response occurred. Please try again.");
+        setType("error");
+      }
+    } catch (error) {
+      console.error("Analysis Error:", error);
+      setMessage("A network error occurred. Please check your connection.");
+      setType("error");
+    }
   };
 
   return (
@@ -124,6 +166,16 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
+
+      {/* Resume Preview Popup */}
+      <ResumePopup
+        isOpen={showPopup}
+        onClose={() => setShowPopup(false)}
+        pdfUrl={pdfUrl}
+        fileName={
+          resumeFile ? `Optimized-${resumeFile.name}` : "Optimized-Resume.pdf"
+        }
+      />
     </div>
   );
 }

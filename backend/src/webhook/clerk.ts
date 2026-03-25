@@ -14,7 +14,7 @@ export const clerkWebhook = new Elysia({ prefix: "/webhook" }).post(
     const svix_signature = headers.get("svix-signature");
 
     const body = await request.text();
-    const wh = new Webhook(WEBHOOK_SECRET);
+    const wh = new Webhook(WEBHOOK_SECRET!);
 
     let event: any;
     try {

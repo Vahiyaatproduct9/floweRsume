@@ -13,6 +13,7 @@ const JWKS = createRemoteJWKSet(
  */
 export async function getClerkId(headers: Record<string, unknown>) {
   const authorization = headers["authorization"];
+  console.log("authorization:", authorization);
   if (!authorization || typeof authorization !== "string")
     return {
       success: false,
@@ -39,8 +40,9 @@ export async function getClerkId(headers: Record<string, unknown>) {
  * into the request context for downstream handlers.
  */
 export const clerkAuth = (app: Elysia) =>
-  app.derive({ as: "global" }, async ({ request, set, headers }) => {
+  app.derive(async ({ request, set, headers }) => {
     const { clerk_id } = await getClerkId(headers);
+    console.log("clerk id", clerk_id);
 
     if (!clerk_id) {
       set.status = 401;

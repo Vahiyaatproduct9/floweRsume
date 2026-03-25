@@ -2,7 +2,7 @@ import { apiCallFull } from "@/lib/api";
 
 /**
  * Sends resume data and job description to the backend for analysis.
- * 
+ *
  * @param resumeFile - Optional PDF file of the resume.
  * @param resumeText - Optional raw text of the resume.
  * @param jobDescription - Optional raw text of the job description.
@@ -18,11 +18,11 @@ export async function analyzeResume(
   if (resumeFile) {
     formData.append("resumefile", resumeFile);
   }
-  
+
   if (resumeText) {
     formData.append("resumetext", resumeText);
   }
-  
+
   if (jobDescription) {
     formData.append("jobdescription", jobDescription);
   }

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMessageStore } from "@/store/useMessageStore";
+import { getToken } from "@clerk/nextjs";
 
-const BACKEND_URL = "";
+const BACKEND_URL = "http://localhost:9999";
 
 export interface ApiCallOptions {
   header?: Record<string, string>;
@@ -17,13 +18,16 @@ export async function apiCallFull(
   endpoint: string,
   options: ApiCallOptions = {},
 ) {
+  const token = await getToken();
+  console.log("token:", token);
   const { header, body, method } = options;
 
   const isFormData = body instanceof FormData;
   const finalMethod = method || (body ? "POST" : "GET");
 
-  const headers: Record<string, string> = { ...header };
-  
+  const authorization = token ? { authorization: `Bearer ${token}` } : null;
+  const headers: Record<string, string> = { ...header, ...authorization };
+
   // Only set application/json if not FormData
   if (!isFormData && body) {
     headers["Content-Type"] = "application/json";
@@ -35,7 +39,17 @@ export async function apiCallFull(
       headers,
       body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     });
-    return await response.json();
+
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/pdf")) {
+      return await response.blob();
+    }
+
+    const data = await response.json();
+    return {
+      ...data,
+      success: response.ok,
+    };
   } catch (error: any) {
     return {
       success: false,

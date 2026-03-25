@@ -29,3 +29,22 @@ export const deleteUserSchema = t.Object({
 export type CreateOrUpdateUserEvent = Static<typeof createOrUpdateUserSchema>;
 export type DeleteUserEvent = Static<typeof deleteUserSchema>;
 export type ClerkEvent = CreateOrUpdateUserEvent | DeleteUserEvent;
+
+export const HistoryItemSchema = t.Object({
+  id: t.String(),
+  job_description: t.String(),
+  original_text: t.Nullable(t.String()),
+  generated_json: t.Any(),
+  ats_score_before: t.Nullable(t.Number()),
+  ats_score_after: t.Nullable(t.Number()),
+  created_at: t.String(),
+});
+
+export const HistoryResponseSchema = t.Object({
+  success: t.Boolean(),
+  message: t.String(),
+  data: t.Array(HistoryItemSchema),
+});
+
+export type HistoryItem = Static<typeof HistoryItemSchema>;
+export type HistoryResponse = Static<typeof HistoryResponseSchema>;

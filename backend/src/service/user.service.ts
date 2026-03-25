@@ -1,10 +1,10 @@
 import {
   createOrUpdateUserSchema,
   deleteUserSchema,
-  CreateOrUpdateUserEvent,
-  DeleteUserEvent,
+  type CreateOrUpdateUserEvent,
+  type DeleteUserEvent,
 } from "../types/global.types";
-import { PoolClient } from "pg";
+import type { PoolClient } from "pg";
 import { Value } from "@sinclair/typebox/value";
 
 const userService = (event: any) => async (client: PoolClient) => {
@@ -13,7 +13,7 @@ const userService = (event: any) => async (client: PoolClient) => {
     try {
       await Bun.write(
         "data/clerk-user-info.json",
-        JSON.stringify(event, null, 2)
+        JSON.stringify(event, null, 2),
       );
       console.log("Clerk event logged to data/clerk-user-info.json");
     } catch (e) {
@@ -47,9 +47,8 @@ const userService = (event: any) => async (client: PoolClient) => {
     // Insert user (free tier gets 3 credits by default from schema)
     await client.query(
       "INSERT INTO users(clerk_id, email) VALUES ($1, $2) RETURNING id, email",
-      [id, email]
+      [id, email],
     );
-
   } else if (type === "user.updated") {
     if (!Value.Check(createOrUpdateUserSchema, event)) {
       return { status: 400, message: "Invalid user.updated event data" };
@@ -58,11 +57,10 @@ const userService = (event: any) => async (client: PoolClient) => {
     const { id, email_addresses } = data;
     const email = email_addresses[0]?.email_address || null;
 
-    await client.query(
-      "UPDATE users SET email = $2 WHERE clerk_id = $1",
-      [id, email]
-    );
-
+    await client.query("UPDATE users SET email = $2 WHERE clerk_id = $1", [
+      id,
+      email,
+    ]);
   } else if (type === "user.deleted") {
     if (!Value.Check(deleteUserSchema, event)) {
       return { status: 400, message: "Invalid user.deleted event data" };
@@ -71,7 +69,6 @@ const userService = (event: any) => async (client: PoolClient) => {
     const { id } = data;
 
     await client.query("DELETE FROM users WHERE clerk_id = $1", [id]);
-
   } else {
     return { status: 400, message: "Unsupported event type" };
   }
@@ -80,8 +77,8 @@ const userService = (event: any) => async (client: PoolClient) => {
     type === "user.created"
       ? "created"
       : type === "user.updated"
-      ? "updated"
-      : "deleted";
+        ? "updated"
+        : "deleted";
 
   return {
     message: `User ${verb} successfully`,

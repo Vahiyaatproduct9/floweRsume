@@ -8,6 +8,7 @@ import { DatabaseError } from "pg";
 import { clerkWebhook } from "@/webhook/clerk";
 import { userController } from "@/user/user.controller";
 import { analysisController } from "@/analysis/analysis.controller";
+import { historyController } from "@/history/history.controller";
 
 const app = new Elysia()
   .onRequest((ctx) => {
@@ -38,31 +39,46 @@ const app = new Elysia()
     };
   })
   .mapResponse((ctx) => {
-    let response = ctx.responseValue as any;
-    ctx.set.status = response?.status;
-    if (response?.status && response.status >= 400) {
-      response = {
-        ...response,
-        success: response?.success ?? false,
-      };
+    const response = ctx.responseValue;
+
+    if (
+      response instanceof Response ||
+      response instanceof Blob ||
+      response instanceof ReadableStream
+    ) {
+      return response;
     }
-    response = {
-      ...response,
-      success: response?.success ?? true,
-    };
+
+    if (
+      typeof response !== "object" ||
+      response === null ||
+      Array.isArray(response)
+    ) {
+      return response;
+    }
+
+    const res = response as any;
+    ctx.set.status = res?.status;
+
+    const isError = res?.status && res.status >= 400;
+
     return {
-      ...response,
-      provider: "Namaste Bites :)",
+      ...res,
+      success: res?.success ?? !isError,
+      provider: "flowRsume :)",
     };
   })
   .use(
     cors({
       origin: "*",
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
     }),
   )
   .use(clerkWebhook)
   .use(userController)
   .use(analysisController)
+  .use(historyController)
   .get("/", async (ctx) => {
     const document = await generateResumePDF();
     Bun.write("path.pdf", document);
@@ -74,11 +90,10 @@ const app = new Elysia()
     });
   })
   .get("/ai", async (ctx) => {
-    const text = await generate(`
-    give me a code snippet in javascript with necessary
-    commenting that explains two pointers easily.
-    **ONLY GIVE BACK THE CODE**
-    if you can't return only code then return with nothing`);
+    const text = await generate({
+      query: "hello",
+      systemInstruction: "you are a helpful nerd friend.",
+    });
     return text.text;
   })
   .get("/log", async (ctx) => {

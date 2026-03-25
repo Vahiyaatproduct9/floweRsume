@@ -8,6 +8,9 @@ class DBClass {
     pool.on("error", (err: any) => {
       console.error("Error in pool: ", err);
     });
+    pool.on("connect", () => {
+      console.log("Pool connected");
+    });
   }
 }
 
