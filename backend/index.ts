@@ -8,7 +8,7 @@ import { DatabaseError } from "pg";
 import { clerkWebhook } from "@/webhook/clerk";
 import { userController } from "@/user/user.controller";
 import { analysisController } from "@/analysis/analysis.controller";
-import { historyController } from "@/history/history.controller";
+import { infoRouter } from "@/info/info.router";
 
 const app = new Elysia()
   .onRequest((ctx) => {
@@ -78,7 +78,7 @@ const app = new Elysia()
   .use(clerkWebhook)
   .use(userController)
   .use(analysisController)
-  .use(historyController)
+  .use(infoRouter)
   .get("/", async (ctx) => {
     const document = await generateResumePDF();
     Bun.write("path.pdf", document);

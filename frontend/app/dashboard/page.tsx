@@ -9,6 +9,10 @@ import { ResumeUploadSection } from "@/components/dashboard/ResumeUploadSection"
 import { analyzeResume } from "@/app/functions/analysis";
 import { ResumePopup } from "@/components/dashboard/ResumePopup";
 import { useMessageStore } from "@/store/useMessageStore";
+import { TemplatesSection } from "@/components/dashboard/TemplatesSection";
+import { SettingsSection } from "@/components/dashboard/SettingsSection";
+import { Layout } from "lucide-react";
+import { useResumeStore } from "@/store/useResumeStore";
 
 // Mock data that would normally come from a server
 const dashboardData = {
@@ -61,15 +65,21 @@ export default function DashboardPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
+  const { selectedTemplateId } = useResumeStore();
+
   // Popup state
   const [showPopup, setShowPopup] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  
+
   // Analysis results state
-  const [atsScoreBefore, setAtsScoreBefore] = useState<number | undefined>(undefined);
-  const [atsScoreAfter, setAtsScoreAfter] = useState<number | undefined>(undefined);
+  const [atsScoreBefore, setAtsScoreBefore] = useState<number | undefined>(
+    undefined,
+  );
+  const [atsScoreAfter, setAtsScoreAfter] = useState<number | undefined>(
+    undefined,
+  );
   const [changesMade, setChangesMade] = useState<string[]>([]);
-  
+
   const { setMessage, setType } = useMessageStore();
 
   // Cleanup blob URL to prevent memory leaks
@@ -93,16 +103,17 @@ export default function DashboardPage() {
         resumeFile,
         resumeContent,
         jobDescription,
+        selectedTemplateId
       );
 
       if (result && result.ai_response) {
         const pdfDatabase64 = result.pdf_base64;
         const aiResponse = result.ai_response;
-        
+
         setAtsScoreBefore(aiResponse.ats_score_before);
         setAtsScoreAfter(aiResponse.ats_score_after);
         setChangesMade(aiResponse.changes_made || []);
-        
+
         const byteArray = Uint8Array.from(atob(pdfDatabase64), (c) =>
           c.charCodeAt(0),
         );
@@ -145,43 +156,62 @@ export default function DashboardPage() {
 
         {/* Main Content Area */}
         <main className="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Left Content: Editor (8 cols on desktop) */}
-            <div className="lg:col-span-8 flex flex-col gap-10">
-              <ResumeUploadSection
-                resumeFile={resumeFile}
-                resumeContent={resumeContent}
-                setResumeFile={setResumeFile}
-                setResumeContent={setResumeContent}
-              />
+          {activeTab === "editor" ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              {/* Left Content: Editor (8 cols on desktop) */}
+              <div className="lg:col-span-8 flex flex-col gap-10">
+                <ResumeUploadSection
+                  resumeFile={resumeFile}
+                  resumeContent={resumeContent}
+                  setResumeFile={setResumeFile}
+                  setResumeContent={setResumeContent}
+                />
 
-              <EditorSection
-                data={dashboardData.editor}
-                resumeContent={resumeContent}
-                setResumeContent={setResumeContent}
-                jobDescription={jobDescription}
-                setJobDescription={setJobDescription}
-                onAnalyze={handleAnalyze}
-                resumeFile={resumeFile}
-                setResumeFile={setResumeFile}
-              />
+                <EditorSection
+                  data={dashboardData.editor}
+                  resumeContent={resumeContent}
+                  setResumeContent={setResumeContent}
+                  jobDescription={jobDescription}
+                  setJobDescription={setJobDescription}
+                  onAnalyze={handleAnalyze}
+                  resumeFile={resumeFile}
+                  setResumeFile={setResumeFile}
+                />
 
-              {/* AI Tip - Visible on Desktop under Editor, or at bottom on Mobile */}
-              <div className="hidden lg:block">
+                {/* AI Tip - Visible on Desktop under Editor, or at bottom on Mobile */}
+                <div className="hidden lg:block">
+                  <AITipCard data={dashboardData.aiTip} />
+                </div>
+              </div>
+
+              {/* Right Content: History (4 cols on desktop) */}
+              <div className="lg:col-span-4 flex flex-col gap-10">
+                <HistorySection data={dashboardData.history} />
+              </div>
+
+              {/* Mobile-only AI Tip */}
+              <div className="lg:hidden">
                 <AITipCard data={dashboardData.aiTip} />
               </div>
             </div>
-
-            {/* Right Content: History (4 cols on desktop) */}
-            <div className="lg:col-span-4 flex flex-col gap-10">
-              <HistorySection data={dashboardData.history} />
+          ) : activeTab === "templates" ? (
+            <TemplatesSection />
+          ) : activeTab === "settings" ? (
+            <SettingsSection />
+          ) : (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+              <div className="w-20 h-20 bg-muted/10 rounded-3xl flex items-center justify-center text-muted mb-6">
+                <Layout size={40} />
+              </div>
+              <h2 className="text-2xl font-black text-foreground tracking-tight mb-2">
+                Section Under Development
+              </h2>
+              <p className="text-muted max-w-md">
+                Were currently building this editorial experience for you.
+                Please check back soon!
+              </p>
             </div>
-
-            {/* Mobile-only AI Tip */}
-            <div className="lg:hidden">
-              <AITipCard data={dashboardData.aiTip} />
-            </div>
-          </div>
+          )}
         </main>
       </div>
 

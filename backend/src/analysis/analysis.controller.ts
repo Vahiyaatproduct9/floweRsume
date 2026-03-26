@@ -15,7 +15,7 @@ export const analysisController = new Elysia({ prefix: "/analyze" })
     "/",
     async (ctx) => {
       const { body } = ctx;
-      const { resumefile, resumetext, jobdescription } = body;
+      const { resumefile, resumetext, jobdescription, templateid } = body;
 
       let resumeText = resumetext || "";
 
@@ -45,6 +45,7 @@ export const analysisController = new Elysia({ prefix: "/analyze" })
       }
 
       console.log("--- Analyze Endpoint Hit ---");
+      console.log("Template ID:", templateid || "default (classic)");
       // console.log("Resume File Text Preview:", resumeText.substring(0, 100) + "...");
       console.log(
         "Job Description Preview:",
@@ -155,6 +156,7 @@ export const analysisController = new Elysia({ prefix: "/analyze" })
         resumefile: t.Optional(t.File()),
         resumetext: t.Optional(t.String()),
         jobdescription: t.Optional(t.String()),
+        templateid: t.Optional(t.String()),
       }),
     },
   );

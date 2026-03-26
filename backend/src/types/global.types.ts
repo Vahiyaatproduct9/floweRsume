@@ -43,7 +43,8 @@ export const HistoryItemSchema = t.Object({
 export const HistoryResponseSchema = t.Object({
   success: t.Boolean(),
   message: t.String(),
-  data: t.Array(HistoryItemSchema),
+  status: t.Number(),
+  data: t.Optional(t.Array(HistoryItemSchema)),
 });
 
 export type HistoryItem = Static<typeof HistoryItemSchema>;

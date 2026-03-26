@@ -12,6 +12,7 @@ export async function analyzeResume(
   resumeFile: File | null,
   resumeText?: string,
   jobDescription?: string,
+  templateId?: string,
 ) {
   const formData = new FormData();
 
@@ -25,6 +26,10 @@ export async function analyzeResume(
 
   if (jobDescription) {
     formData.append("jobdescription", jobDescription);
+  }
+
+  if (templateId) {
+    formData.append("templateid", templateId);
   }
 
   // Use apiCallFull as requested to return the result directly
