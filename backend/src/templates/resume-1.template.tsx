@@ -253,8 +253,8 @@ const ResumeDocument = ({ data }: { data: AIResponse }) => {
 const placeholderData: AIResponse = {
   name: "Kishor Dih",
   job_title: "Full Stack Developer",
-  address: "Siliguri/Kolkata, WB",
-  phone: "+91 87598 14731",
+  address: "Indian Ocean",
+  phone: "+91 12312 31231",
   email: "grishmadev@proton.me",
   github: "vahiyaatProduct9",
   linkedin: "kishor-dih",
@@ -308,9 +308,13 @@ const placeholderData: AIResponse = {
   honors: [
     "Winner at Tech Adrishta Web Development Category in Manipal Institute of Technology, 2023.",
   ],
-  ats_score_before: 0,
-  ats_score_after: 0,
-  changes_made: [],
+  ats_score_before: 66,
+  ats_score_after: 74,
+  changes_made: [
+    "Some changes were made to the resume to improve the AI's understanding of the job description.",
+    "The AI's understanding of the job description was improved by analyzing the resume's structure and content.",
+    "The AI's understanding of the job description was improved by analyzing the resume's structure and content.",
+  ],
 };
 
 const generateResumePDF = async (

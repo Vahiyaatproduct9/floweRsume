@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { colors } from "@/lib/colors";
 
-type ThemeMode = "light" | "dark";
+type ThemeMode = "light" | "dark" | "forest";
 
 interface ThemeState {
   mode: ThemeMode;

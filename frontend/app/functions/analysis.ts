@@ -1,4 +1,4 @@
-import { apiCallFull } from "@/lib/api";
+import { apiCall } from "@/lib/api";
 
 /**
  * Sends resume data and job description to the backend for analysis.
@@ -28,7 +28,7 @@ export async function analyzeResume(
   }
 
   // Use apiCallFull as requested to return the result directly
-  return await apiCallFull("/analyze", {
+  return await apiCall("/analyze", {
     body: formData,
     method: "POST",
   });

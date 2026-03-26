@@ -64,6 +64,12 @@ export default function DashboardPage() {
   // Popup state
   const [showPopup, setShowPopup] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  
+  // Analysis results state
+  const [atsScoreBefore, setAtsScoreBefore] = useState<number | undefined>(undefined);
+  const [atsScoreAfter, setAtsScoreAfter] = useState<number | undefined>(undefined);
+  const [changesMade, setChangesMade] = useState<string[]>([]);
+  
   const { setMessage, setType } = useMessageStore();
 
   // Cleanup blob URL to prevent memory leaks
@@ -89,9 +95,20 @@ export default function DashboardPage() {
         jobDescription,
       );
 
-      if (result instanceof Blob) {
+      if (result && result.ai_response) {
+        const pdfDatabase64 = result.pdf_base64;
+        const aiResponse = result.ai_response;
+        
+        setAtsScoreBefore(aiResponse.ats_score_before);
+        setAtsScoreAfter(aiResponse.ats_score_after);
+        setChangesMade(aiResponse.changes_made || []);
+        
+        const byteArray = Uint8Array.from(atob(pdfDatabase64), (c) =>
+          c.charCodeAt(0),
+        );
         // Handle successful PDF blob
-        const url = URL.createObjectURL(result);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
         setPdfUrl(url);
         setShowPopup(true);
       } else if (result && result.success === false) {
@@ -102,6 +119,7 @@ export default function DashboardPage() {
         setType("error");
       } else {
         // Unexpected result format
+        console.error("Unexpected result format:", result);
         setMessage("An unexpected response occurred. Please try again.");
         setType("error");
       }
@@ -175,6 +193,9 @@ export default function DashboardPage() {
         fileName={
           resumeFile ? `Optimized-${resumeFile.name}` : "Optimized-Resume.pdf"
         }
+        atsScoreBefore={atsScoreBefore}
+        atsScoreAfter={atsScoreAfter}
+        changesMade={changesMade}
       />
     </div>
   );
