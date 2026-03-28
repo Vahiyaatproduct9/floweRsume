@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { Webhook } from "svix";
 import { WEBHOOK_SECRET } from "@/env";
 import DBTransaction from "@/util/withDatabase";
-import userService from "@/service/user.service";
+import userService from "@/user/user.service";
 
 export const clerkWebhook = new Elysia({ prefix: "/webhook" }).post(
   "/clerk",
